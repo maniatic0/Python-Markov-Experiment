@@ -16,7 +16,7 @@ class MarkovNodeSet (MarkovNodeSetAbstract) :
 
     def cleanDirty(self):
         for node in self.dirtyNodes:
-            node.fixTransitions()
+            node.fixTransitionsNoUpdateSet()
         self.dirtyNodes.clear()
 
     def getNode(self, name):
@@ -42,3 +42,17 @@ class MarkovNodeSet (MarkovNodeSetAbstract) :
             return self._createNode(name)
         else:
             return node
+
+    def __repr__(self):
+        representation = "MarkovNodeSet(size={0!r}, nodes=\n".format(len(self.nodes.items()))
+        for node in self.nodes.items():
+            representation += "\t({0!r}, {1!r})\n".format(node[0], node[1])
+        representation += ")"
+        return representation
+
+    def __str__(self):
+        representation = "MarkovNodeSet(size={0!s}, nodes=\n".format(len(self.nodes.items()))
+        for node in self.nodes.items():
+            representation += "\t({0!s}, {1!s})\n".format(node[0], node[1])
+        representation += ")"
+        return representation
