@@ -3,7 +3,7 @@ from operator import itemgetter
 from random import uniform
 from base64 import b64encode, b64decode
 
-from markovNodeSetAbstract import MarkovNodeSetAbstract
+from src.markovNodeSetAbstract import MarkovNodeSetAbstract
 
 class MarkovNode ():
     # Instance Methods
@@ -89,7 +89,7 @@ class MarkovNode ():
 
         transitionLast = len(self.transitions.items())-1
         transitionIndex = 0
-        
+
         for elem in self.transitions.items():
             representation += "({0!s}, {1!s})" \
                 .format(elem[0].getName(), elem[1])

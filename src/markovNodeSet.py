@@ -1,6 +1,6 @@
 
-from markovNode import MarkovNode
-from markovNodeSetAbstract import MarkovNodeSetAbstract
+from src.markovNode import MarkovNode
+from src.markovNodeSetAbstract import MarkovNodeSetAbstract
 
 class MarkovNodeSet (MarkovNodeSetAbstract) :
 
@@ -43,15 +43,18 @@ class MarkovNodeSet (MarkovNodeSetAbstract) :
         else:
             return node
 
+    def getNodesAmount(self):
+        return len(self.nodes.items())
+
     def __repr__(self):
-        representation = "MarkovNodeSet(size={0!r}, nodes=\n".format(len(self.nodes.items()))
+        representation = "MarkovNodeSet(size={0!r}, nodes=\n".format(self.getNodesAmount())
         for node in self.nodes.items():
             representation += "\t({0!r}, {1!r})\n".format(node[0], node[1])
         representation += ")"
         return representation
 
     def __str__(self):
-        representation = "MarkovNodeSet(size={0!s}, nodes=\n".format(len(self.nodes.items()))
+        representation = "MarkovNodeSet(size={0!s}, nodes=\n".format(self.getNodesAmount())
         for node in self.nodes.items():
             representation += "\t({0!s}, {1!s})\n".format(node[0], node[1])
         representation += ")"

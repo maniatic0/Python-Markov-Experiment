@@ -1,8 +1,8 @@
 
 import os
 
-from markovNode import MarkovNode
-from markovNodeSet import MarkovNodeSet
+from src.markovNode import MarkovNode
+from src.markovNodeSet import MarkovNodeSet
 
 class Markov ():
 
@@ -14,7 +14,6 @@ class Markov ():
         self.endNode = MarkovNode(" ", self.markovSet)
         self.newLineNode = MarkovNode("\n", self.markovSet)
 
-        self.startNode.addTransition(self.endNode)
     
     def learnFromText(self, text):
         lines = text.splitlines()
@@ -30,6 +29,7 @@ class Markov ():
                 prevWord = nextWord
             
             if lenLines > 1 and lineNumber < lenLines - 1:
+                self.startNode.addTransition(prevWord)
                 prevWord.addTransition(self.newLineNode)
                 prevWord = self.newLineNode
 
@@ -44,6 +44,10 @@ class Markov ():
             f.close()
 
     def generateText(self):
+        # if there is nothing to generate
+        if self.markovSet.getNodesAmount() == 0:
+            return ""
+
         currentNode = self.startNode
         steps = 0
         generated = ""
@@ -51,6 +55,7 @@ class Markov ():
             generated += " " + currentNode.getName()
             currentNode = currentNode.getRandomNext()
             steps += 1
+        
         return generated
 
     def __repr__(self):
