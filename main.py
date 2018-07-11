@@ -6,9 +6,7 @@ from src.markov import Markov
 
 def main(filename, textsToLearn=[]):
     mark = Markov(filename, 300)
-    for text in textsToLearn:
-        mark.learnFromFile(text)
-
+    mark.learnFromFiles(textsToLearn)
     mark.cleanDirty()
 
     texto = mark.generateText()

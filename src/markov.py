@@ -49,11 +49,18 @@ class Markov ():
         if lenLines != 0:
             prevWord.addTransition(self.endNode)
         
+    def learnFromTexts(self, texts=[]):
+        for text in texts:
+            self.learnFromText(text)
     
     def learnFromFile(self, filename):
         with open(filename, 'r', encoding='utf-8') as f:
             self.learnFromText(f.read())
             f.close()
+
+    def learnFromFiles(self, filenamesOfTextsToLearn=[]):
+        for text in filenamesOfTextsToLearn:
+            self.learnFromFile(text)
 
     def cleanDirty(self):
         self.markovSet.cleanDirty()
