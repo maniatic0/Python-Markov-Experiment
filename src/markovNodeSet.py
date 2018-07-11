@@ -1,4 +1,6 @@
 
+from base64 import b64encode
+
 from src.markovNode import MarkovNode
 from src.markovNodeSetAbstract import MarkovNodeSetAbstract
 
@@ -59,3 +61,9 @@ class MarkovNodeSet (MarkovNodeSetAbstract) :
             representation += "\t({0!s}, {1!s})\n".format(node[0], node[1])
         representation += ")"
         return representation
+
+    def jsonDict(self):
+        resp = {}
+        for node in self.nodes.items():
+            resp[b64encode(node[0].encode('utf-8')).decode('utf-8')] = node[1].jsonDict()
+        return resp

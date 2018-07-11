@@ -2,13 +2,23 @@
 from operator import itemgetter
 from random import uniform
 from base64 import b64encode, b64decode
+from enum import IntEnum, unique, auto
 
 from src.markovNodeSetAbstract import MarkovNodeSetAbstract
 
+@unique
+class NodeType (IntEnum):
+    START_NODE = 0
+    END_NODE = 1
+    NEWLINE_NODE = 2
+    NORMAL = auto()
+
 class MarkovNode ():
+    NODE_TYPE_SEPARATOR = '&'
     # Instance Methods
-    def __init__(self, name, markovSet):
+    def __init__(self, name, markovSet, nodeType=NodeType.NORMAL):
         self.name = name
+        self.nodeType = nodeType
         self.dirty = False
         self.transitions = {}
         self.totalTransitions = 0
@@ -17,6 +27,9 @@ class MarkovNode ():
 
     def getName(self):
         return self.name
+
+    def getNameBase64(self):
+        return b64encode(self.getName().encode('utf-8')).decode('utf-8')
 
     def addTransition(self, nextNode, weight=1):
         if nextNode is None:
@@ -45,20 +58,20 @@ class MarkovNode ():
 
         # Sort by weight
         self.nextList.sort(key=itemgetter(1))
-        
+
         self.dirty = False
 
     def fixTransitions(self):
         self.fixTransitionsNoUpdateSet()
         self.markovSet.markAsClean(self)
-        
+
     def getRandomNext(self):
         if self.dirty:
             self.fixTransitions()
 
         if self.totalTransitions == 0:
             return None
-        
+
         p = uniform(0.0, 1.0)
 
         for node in self.nextList:
@@ -70,14 +83,14 @@ class MarkovNode ():
 
     def __repr__(self):
         representation = "markovNode(name={0!r}, transitions=[" \
-            .format(b64encode(self.name.encode('utf-8')))
+            .format(self.getNameBase64())
 
         transitionLast = len(self.transitions.items())-1
         transitionIndex = 0
-        
+
         for elem in self.transitions.items():
             representation += "({0!r}, {1!r})" \
-                .format(b64encode(elem[0].getName().encode('utf-8')), elem[1])
+                .format(elem[0].getNameBase64(), elem[1])
             if transitionIndex != transitionLast:
                 representation += ', '
             transitionIndex += 1
@@ -99,6 +112,14 @@ class MarkovNode ():
         representation += "])"
         return representation
 
-    @staticmethod
-    def loadFromText(text, set):
-        raise NotImplementedError("loadFromText")
+    def jsonDict(self):
+        resp = {}
+        for transition in self.transitions.items():
+            if transition[0].nodeType == NodeType.NORMAL:
+                resp[transition[0].getNameBase64()] = transition[1]
+            else:
+                resp[ \
+                    "{0!s}{1!s}".format(MarkovNode.NODE_TYPE_SEPARATOR, transition[0].nodeType) \
+                    ] = transition[1]
+
+        return resp
