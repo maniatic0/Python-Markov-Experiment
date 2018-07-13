@@ -54,20 +54,30 @@ class Markov ():
             self.learnFromText(text)
     
     def learnFromFile(self, filename):
-        with open(filename, 'r', encoding='utf-8') as f:
-            self.learnFromText(f.read())
-            f.close()
+        if filename is None or not os.path.isfile(filename):
+            print("Failed to learn from file '{0!s}'".format(filename))
+            return False
+        
+        try:
+            print("Learning from file '{0!s}'".format(filename))
+            with open(filename, 'r', encoding='utf-8') as f:
+                self.learnFromText(f.read())
+                f.close()
+            return True
+        except Exception as e:
+            print("Failed to Learn from file '{0!s}': {1!s}".format(filename, e))
+            return False
+        
 
     def learnFromFiles(self, filenamesOfTextsToLearn=[]):
-        for text in filenamesOfTextsToLearn:
-            self.learnFromFile(text)
+        return [self.learnFromFile(text) for text in filenamesOfTextsToLearn]
 
     def cleanDirty(self):
         self.markovSet.cleanDirty()
 
     def generateText(self):
         # if there is nothing to generate
-        if self.markovSet.getNodesAmount() == 0:
+        if self.markovSet.getNodesAmount() == 0 or self.predictionMax == 0:
             return ""
 
         currentNode = self.startNode
@@ -114,15 +124,35 @@ class Markov ():
         return json.dumps(self.jsonDict(), indent=indent)
 
     def jsonSave(self, indent=0):
-        with open(self.filename, 'w', encoding='utf-8') as f:
-            f.write(self.jsonDump(indent=indent))
-            f.close()
+        if self.filename is None:
+            return False
+
+        print("Saving To JSON in file '{0!s}'".format(self.filename))
+        try:
+            with open(self.filename, 'w', encoding='utf-8') as f:
+                f.write(self.jsonDump(indent=indent))
+                f.close()
+            return True
+        except Exception as e:
+            print("Error while Saving To JSON in file '{0!s}': {1!s}".format(self.filename, e))
+            return False
+        
 
     def jsonLoad(self, filename):
         jsonDump = None
-        with open(filename) as f:
-            jsonDump = json.loads(f.read())
-            f.close()
+
+        if not os.path.isfile(filename):
+            return False
+            
+        print("Loading from JSON in file '{0!s}'".format(filename))
+        try:
+            with open(filename) as f:
+                jsonDump = json.loads(f.read())
+                f.close()
+        except Exception as e:
+            print("Error while Loading from JSON in file '{0!s}': {1!s}".format(filename, e))
+            return False
+        
 
         specialNodes = jsonDump[Markov.SPECIAL_NODES_JSON_STRING]
         transitions = jsonDump[Markov.NODES_JSON_STRING]
@@ -159,10 +189,32 @@ class Markov ():
                     transitionNode = self.markovSet.getOrCreateNode(decodedTransition)
                     loadedNode.addTransition(transitionNode, weight=int(transition[1]))
 
+        return True
 
-        #print(jsonDump)
 
+def markovMain(jsonFilename=None, textsToLearn=[], maxPredictions=100, \
+        saveJSON=True, jsonIndent=4, output=None):
+    mark = Markov(jsonFilename, maxPredictions)
+    mark.learnFromFiles(textsToLearn)
+    mark.cleanDirty()
+
+    text = mark.generateText()
+
+    if output is not None:
+        try:
+            print("Saving Output to: {0!s}".format(output))
+            with open(output, 'w', encoding='utf-8') as f:
+                f.write(text)
+                f.close()
+        except Exception as e:
+            print("Error Saving Output to: {0!s}".format(output))
+            print(e)
+    else:
+        print(text)
         
+
+    if saveJSON:
+        mark.jsonSave(indent=jsonIndent)
 
 
 def main():
