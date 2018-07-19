@@ -3,7 +3,7 @@
 import argparse
 
 from src.markov import Markov, markovMain
-    
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser( \
         description='Control Markov Chain Text Generator by Christian Oliveros.')
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('-mo', '--markovOutput', metavar='filename', \
         help='Where to save the output. If none is provided the generated text is printed on terminal', \
         default=None)
-    
+
     args = parser.parse_args()
     markovMain(args.markovFile, args.textsToLearn, args.maxPredictions, \
         args.saveMarkov, args.jsonIndent, args.markovOutput)

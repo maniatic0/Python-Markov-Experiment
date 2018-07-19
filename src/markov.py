@@ -20,12 +20,12 @@ class Markov ():
 
         self.startNode = MarkovNode("", self.markovSet, NodeType.START_NODE)
         self.endNode = MarkovNode(" ", self.markovSet, NodeType.END_NODE)
-        self.newLineNode = MarkovNode("\n", self.markovSet, NodeType.NEWLINE_NODE)        
+        self.newLineNode = MarkovNode("\n", self.markovSet, NodeType.NEWLINE_NODE)
 
         if self.filename is not None and os.path.isfile(self.filename):
             self.jsonLoad(self.filename)
 
-    
+
     def learnFromText(self, text):
         lines = text.splitlines()
         lenLines = len(lines)
@@ -38,7 +38,7 @@ class Markov ():
                 nextWord = self.markovSet.getOrCreateNode(word)
                 prevWord.addTransition(nextWord)
                 prevWord = nextWord
-            
+
             if lenLines > 1 and lineNumber < lenLines - 1 and len(words) != 0:
                 self.startNode.addTransition(prevWord)
                 prevWord.addTransition(self.newLineNode)
@@ -48,16 +48,16 @@ class Markov ():
 
         if lenLines != 0:
             prevWord.addTransition(self.endNode)
-        
+
     def learnFromTexts(self, texts=[]):
         for text in texts:
             self.learnFromText(text)
-    
+
     def learnFromFile(self, filename):
         if filename is None or not os.path.isfile(filename):
             print("Failed to learn from file '{0!s}'".format(filename))
             return False
-        
+
         try:
             print("Learning from file '{0!s}'".format(filename))
             with open(filename, 'r', encoding='utf-8') as f:
@@ -67,7 +67,7 @@ class Markov ():
         except Exception as e:
             print("Failed to Learn from file '{0!s}': {1!s}".format(filename, e))
             return False
-        
+
 
     def learnFromFiles(self, filenamesOfTextsToLearn=[]):
         return [self.learnFromFile(text) for text in filenamesOfTextsToLearn]
@@ -87,7 +87,7 @@ class Markov ():
             generated += " " + currentNode.getName()
             currentNode = currentNode.getRandomNext()
             steps += 1
-        
+
         return generated
 
     def __repr__(self):
@@ -111,11 +111,11 @@ class Markov ():
 
         specialNodes["{0!s}{1!s}".format(MarkovNode.NODE_TYPE_SEPARATOR, NodeType.NEWLINE_NODE)] \
                 = self.newLineNode.jsonDict()
-        
+
 
         resp = {
             Markov.VERSION_JSON_STRING : Markov.VERSION,
-            Markov.SPECIAL_NODES_JSON_STRING : specialNodes, 
+            Markov.SPECIAL_NODES_JSON_STRING : specialNodes,
             Markov.NODES_JSON_STRING : self.markovSet.jsonDict()
             }
         return resp
@@ -136,14 +136,14 @@ class Markov ():
         except Exception as e:
             print("Error while Saving To JSON in file '{0!s}': {1!s}".format(self.filename, e))
             return False
-        
+
 
     def jsonLoad(self, filename):
         jsonDump = None
 
         if not os.path.isfile(filename):
             return False
-            
+
         print("Loading from JSON in file '{0!s}'".format(filename))
         try:
             with open(filename) as f:
@@ -152,7 +152,7 @@ class Markov ():
         except Exception as e:
             print("Error while Loading from JSON in file '{0!s}': {1!s}".format(filename, e))
             return False
-        
+
 
         specialNodes = jsonDump[Markov.SPECIAL_NODES_JSON_STRING]
         transitions = jsonDump[Markov.NODES_JSON_STRING]
@@ -173,7 +173,7 @@ class Markov ():
                 name = b64decode(node[0].encode('utf-8')).decode('utf-8')
                 loadedNode = self.markovSet.getOrCreateNode(name)
                 self.newLineNode.addTransition(loadedNode, weight=int(node[1]))
-            
+
 
         for node in transitions.items():
             name = b64decode(node[0].encode('utf-8')).decode('utf-8')
@@ -211,7 +211,7 @@ def markovMain(jsonFilename=None, textsToLearn=[], maxPredictions=100, \
             print(e)
     else:
         print(text)
-        
+
 
     if saveJSON:
         mark.jsonSave(indent=jsonIndent)
@@ -222,7 +222,7 @@ def main():
     print("Markov: {0!r}".format(mark))
     print("Empty: " + mark.generateText())
     print("")
-    
+
     aprender = "Hola me llamo pedro"
     print("Aprendiendo: {0!s}".format(aprender))
     mark.learnFromText(aprender)
