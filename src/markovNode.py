@@ -2,7 +2,7 @@
 from operator import itemgetter
 from random import uniform
 from base64 import b64encode, b64decode
-from enum import IntEnum, unique, auto
+from enum import IntEnum, unique
 
 from src.markovNodeSetAbstract import MarkovNodeSetAbstract
 
@@ -11,7 +11,7 @@ class NodeType (IntEnum):
     START_NODE = 0
     END_NODE = 1
     NEWLINE_NODE = 2
-    NORMAL = auto()
+    NORMAL = 3
 
 class MarkovNode ():
     NODE_TYPE_SEPARATOR = '&'
