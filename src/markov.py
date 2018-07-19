@@ -1,6 +1,7 @@
 
 import os
 import json
+import codecs
 from base64 import b64decode
 
 from src.markovNode import MarkovNode, NodeType
@@ -27,6 +28,9 @@ class Markov ():
 
 
     def learnFromText(self, text):
+        # Remove BOM from utf-8 strings
+        if text.startswith(codecs.BOM_UTF8.decode('utf-8')):
+            text = text.replace(codecs.BOM_UTF8.decode('utf-8'), '', 1)
         lines = text.splitlines()
         lenLines = len(lines)
 
